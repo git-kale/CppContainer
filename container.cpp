@@ -27,6 +27,7 @@ int run(P params)
 
 int jail(void *args)
 { // Function JAIL that is container
+    clearenv();                                 // Removes all enviroment variables s.t. no variables are passed onto child
     printf("Namastey from JAIL \n");
     run("/bin/sh");
     return 0;
@@ -35,7 +36,7 @@ int jail(void *args)
 int main(int argc, char **argv)
 {
     printf("Namastey from main(), Waiting for JAIL.....\n");
-    clone(jail, stack_memory(), SIGCHLD, 0);    // Clone syscall to clone precoess (`$ man fork` for more details)
+    clone(jail, stack_memory(), CLONE_NEWUTS | SIGCHLD, 0);    // Clone syscall to clone precoess (`$ man fork` for more details, UTS->Universal time sharing {You can have a new host under the same `Linux Namespace`})
     wait(nullptr);                              // After cloning a process wait until all the child processes created to complete(CHILD process return *nullptr after completion)
     printf("Exitting from container.... \n");
     return 0;
